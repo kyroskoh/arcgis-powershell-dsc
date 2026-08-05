@@ -74,6 +74,10 @@ Editor `$schema` IntelliSense catches many shape mistakes while you edit. For a 
 .\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 `
   -Path '.\SampleConfigs\v5\v5.1.1\Base Deployment\BaseDeployment-SingleMachine.json'
 
+# Directory or wildcard — expands recursively to *.json (module rules; invalid fixtures exit 1)
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata\sampleconfigs
+
 # v5.1.0 pin
 .\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 `
   -Path '.\SampleConfigs\v5\v5.1.0\Base Deployment\BaseDeployment-SingleMachine.json' `
@@ -82,4 +86,4 @@ Editor `$schema` IntelliSense catches many shape mistakes while you edit. For a 
   -SchemaPath '.\ConfigurationSchemas\v5.1.0.json'
 ```
 
-Add `-Schema` on **PowerShell 7.4+** to also validate against `ConfigurationSchemas/v5.1.1.json` (or `v5.1.0.json`) via `Test-Json -SchemaFile` (draft 2020-12). Schema mode is strict (`additionalProperties: false`). Module semantic rules (deprecated Desktop/Insights keys, GeoEvent split-file rules, AllNodes integrity) are embedded in the script and always run on Windows PowerShell 5.1.
+Add `-Schema` on **PowerShell 7.4+** to also validate against `ConfigurationSchemas/v5.1.1.json` (or `v5.1.0.json`) via `Test-Json -SchemaFile` (draft 2020-12). Schema mode is strict (`additionalProperties: false`). Module semantic rules (deprecated Desktop/Insights keys, GeoEvent split-file rules, AllNodes integrity) are embedded in the script and always run on Windows PowerShell 5.1. `-Path` accepts files, directories (`*.json`), or wildcards.

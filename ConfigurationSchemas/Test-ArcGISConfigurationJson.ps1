@@ -12,7 +12,8 @@
     Esri/arcgis-powershell-dsc. Does not import the ArcGIS DSC module.
 
 .PARAMETER Path
-    One or more configuration JSON file paths.
+    One or more configuration JSON file paths, directories, or wildcards.
+    Directories expand to *.json recursively.
 
 .PARAMETER Version
     Module version used in deprecation messages. Default 5.1.1.
@@ -28,10 +29,13 @@
     Throw on the first file that fails validation.
 
 .EXAMPLE
-    .\Test-ArcGISConfigurationJson.ps1 -Path .\SampleConfigs\v5\v5.1.1\Base Deployment\BaseDeployment-SingleMachine.json
+    .\Test-ArcGISConfigurationJson.ps1 -Path '.\SampleConfigs\v5\v5.1.1\Base Deployment\BaseDeployment-SingleMachine.json'
 
 .EXAMPLE
     .\Test-ArcGISConfigurationJson.ps1 -Path .\my-config.json -Schema
+
+.EXAMPLE
+    .\Test-ArcGISConfigurationJson.ps1 -Path .\testdata
 #>
 [CmdletBinding()]
 param(
@@ -172,18 +176,17 @@ function Get-ArcGISConfigurationDscRoots {
     }
 }
 
-function Resolve-ArcGISConfigurationInputPath {
+function Resolve-ArcGISConfigurationExistingPath {
     param(
         [Parameter(Mandatory)]
-        [string]$FilePath
+        [string]$InputPath
     )
 
-    if (Test-Path -LiteralPath $FilePath) {
-        return (Resolve-Path -LiteralPath $FilePath).Path
+    if (Test-Path -LiteralPath $InputPath) {
+        return (Resolve-Path -LiteralPath $InputPath).Path
     }
 
-    $rel = $FilePath -replace '^\.[\\/]', ''
-    # Resolve relative paths against the DSC repo root (SampleConfigs/, testdata/, ...)
+    $rel = $InputPath -replace '^\.[\\/]', ''
     foreach ($root in @(Get-ArcGISConfigurationDscRoots)) {
         if ([string]::IsNullOrWhiteSpace($root)) { continue }
         $candidate = Join-Path $root $rel
@@ -192,21 +195,80 @@ function Resolve-ArcGISConfigurationInputPath {
         }
     }
 
-    $hint = "File not found: $FilePath"
-    if ($FilePath -match '\\Base$' -or $FilePath -notmatch '\.json$') {
-        $hint += " Tip: quote -Path when folders contain spaces (e.g. -Path '.\SampleConfigs\v5\v5.1.1\Base Deployment\BaseDeployment-SingleMachine.json')."
+    $null
+}
+
+function Expand-ArcGISConfigurationInputPaths {
+    param(
+        [Parameter(Mandatory)]
+        [string[]]$Path
+    )
+
+    $expanded = [System.Collections.Generic.List[string]]::new()
+    foreach ($raw in $Path) {
+        $hasWildcard = [System.Management.Automation.WildcardPattern]::ContainsWildcardCharacters($raw)
+        if ($hasWildcard) {
+            $matches = @(Resolve-Path -Path $raw -ErrorAction SilentlyContinue)
+            if ($matches.Count -eq 0) {
+                $rel = $raw -replace '^\.[\\/]', ''
+                foreach ($root in @(Get-ArcGISConfigurationDscRoots)) {
+                    if ([string]::IsNullOrWhiteSpace($root)) { continue }
+                    $matches = @(Resolve-Path -Path (Join-Path $root $rel) -ErrorAction SilentlyContinue)
+                    if ($matches.Count -gt 0) { break }
+                }
+            }
+            if ($matches.Count -eq 0) {
+                throw "No files matched: $raw"
+            }
+            foreach ($m in $matches) {
+                if (Test-Path -LiteralPath $m.Path -PathType Container) {
+                    Get-ChildItem -LiteralPath $m.Path -Filter '*.json' -File -Recurse |
+                        ForEach-Object { $expanded.Add($_.FullName) }
+                }
+                elseif ($m.Path -match '\.json$') {
+                    $expanded.Add($m.Path)
+                }
+            }
+            continue
+        }
+
+        $resolved = Resolve-ArcGISConfigurationExistingPath -InputPath $raw
+        if (-not $resolved) {
+            $hint = "Path not found: $raw"
+            if ($raw -match '\s' -or $raw -notmatch '\.json$') {
+                $hint += " Tip: quote -Path when folders contain spaces (e.g. -Path '.\SampleConfigs\v5\v5.1.1\Base Deployment\BaseDeployment-SingleMachine.json')."
+            }
+            throw $hint
+        }
+
+        if (Test-Path -LiteralPath $resolved -PathType Container) {
+            $jsonFiles = @(Get-ChildItem -LiteralPath $resolved -Filter '*.json' -File -Recurse)
+            if ($jsonFiles.Count -eq 0) {
+                throw "No *.json files in directory: $resolved"
+            }
+            foreach ($f in $jsonFiles) { $expanded.Add($f.FullName) }
+        }
+        else {
+            $expanded.Add($resolved)
+        }
     }
-    else {
-        $hint += " Tip: use a path relative to the DSC repo root (SampleConfigs\\..., testdata\\...)."
+
+    if ($expanded.Count -eq 0) {
+        throw 'No configuration JSON files to validate.'
     }
-    throw $hint
+
+    return @($expanded | Select-Object -Unique)
 }
 
 function Resolve-ArcGISConfigurationSchemaPath {
     param([string]$ExplicitPath)
 
     if ($ExplicitPath) {
-        return (Resolve-ArcGISConfigurationInputPath -FilePath $ExplicitPath)
+        $resolved = Resolve-ArcGISConfigurationExistingPath -InputPath $ExplicitPath
+        if (-not $resolved -or -not (Test-Path -LiteralPath $resolved -PathType Leaf)) {
+            throw "Schema file not found: $ExplicitPath"
+        }
+        return $resolved
     }
 
     $sibling = Join-Path $script:ValidatorRoot 'v5.1.1.json'
@@ -276,7 +338,7 @@ function Test-ArcGISConfigurationJsonFile {
         [switch]$Strict
     )
 
-    $resolvedPath = Resolve-ArcGISConfigurationInputPath -FilePath $FilePath
+    $resolvedPath = $FilePath
     $raw = Get-Content -LiteralPath $resolvedPath -Raw -Encoding UTF8
     $config = $null
     try {
@@ -331,8 +393,10 @@ if ($Schema) {
     $resolvedSchema = Resolve-ArcGISConfigurationSchemaPath -ExplicitPath $SchemaPath
 }
 
+$inputFiles = Expand-ArcGISConfigurationInputPaths -Path $Path
+
 $results = [System.Collections.Generic.List[object]]::new()
-foreach ($file in $Path) {
+foreach ($file in $inputFiles) {
     $results.Add((Test-ArcGISConfigurationJsonFile `
             -FilePath $file `
             -ModuleVersion $Version `
