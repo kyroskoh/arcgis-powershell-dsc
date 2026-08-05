@@ -64,3 +64,22 @@ Invoke-ArcGISConfiguration \
 - Some options are version-specific. The schema encodes supported values for v5.1.1, including Enterprise versions through `12.1`.
 - If your editor says a property is not allowed, verify both the property name and the location where it is defined.
 - For richer examples, use the v5.1.1 sample configs under `SampleConfigs/v5/v5.1.1/`.
+
+## Command-line validation
+
+Editor `$schema` IntelliSense catches many shape mistakes while you edit. For a scripted check (CI or pre-deploy), run:
+
+```powershell
+# Run from the DSC repo root; quote paths that contain spaces
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 `
+  -Path '.\SampleConfigs\v5\v5.1.1\Base Deployment\BaseDeployment-SingleMachine.json'
+
+# v5.1.0 pin
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 `
+  -Path '.\SampleConfigs\v5\v5.1.0\Base Deployment\BaseDeployment-SingleMachine.json' `
+  -Version 5.1.0 `
+  -Schema `
+  -SchemaPath '.\ConfigurationSchemas\v5.1.0.json'
+```
+
+Add `-Schema` on **PowerShell 7.4+** to also validate against `ConfigurationSchemas/v5.1.1.json` (or `v5.1.0.json`) via `Test-Json -SchemaFile` (draft 2020-12). Schema mode is strict (`additionalProperties: false`). Module semantic rules (deprecated Desktop/Insights keys, GeoEvent split-file rules, AllNodes integrity) are embedded in the script and always run on Windows PowerShell 5.1.
