@@ -1,16 +1,24 @@
 {
-    "$schema": "../../ConfigurationSchemas/v5.1.1.json",
+    "$schema": "../../../ConfigurationSchemas/v5.1.0.json",
     "AllNodes": [
         {
             "NodeName": "[Machine Name]",
             "Role": [
-                "Server"
+                "Server",
+                "RasterDataStoreItem"
             ]
         }
     ],
     "ConfigData": {
         "Version": "[Version of ArcGIS Deployment]",
-        "ServerRole": "GeoEvent",
+        "ServerRole": "GeneralPurposeServer",
+        "AdditionalServerRoles":[
+            "Geoevent",
+            "RasterAnalytics",
+            "WorkflowManagerServer",
+            "GeoAnalytics",
+            "ImageHosting"
+        ],
         "Credentials": {
             "ServiceAccount": {
                 "Password": "[ServiceAccount Password]",
@@ -28,10 +36,6 @@
                 ],
                 "InstallDir": "[Server Install Dir - Ex. C:\\ArcGIS\\Server]",
                 "InstallDirPython": "[Python Install Dir - Ex. C:\\Python27] ",
-                "PatchesDir": "[Path to Directory with Patches for Server]",
-                "PatchInstallOrder": [
-                    "Array of patch names to install in the needed order"
-                ],
                 "EnableArcMapRuntime": "[ Optional - True (Default) | False - Enables ArcMapRuntime. Available starting 10.9.1]",
                 "EnableDotnetSupport": "[ Optional - True | False (Default)  - Enables .Net Extension Support. Available starting 10.9.1]"
             },
@@ -40,6 +44,50 @@
             "PrimarySiteAdmin": {
                 "UserName": "[PrimarySiteAdmin Username]",
                 "Password": "[PrimarySiteAdmin Password]"
+            },
+            "Extensions":{
+                "DataInteroperability":{
+                    "Installer": {
+                        "Path": "[Data Interoperability Installer Path]"
+                    }
+                },
+                "DataReviewer":{
+                    "Installer": {
+                        "Path": "[Data Reviewer Installer Path]"
+                    }
+                },
+                "WorkflowManagerClassic":{
+                    "Installer": {
+                        "Path": "[Workflow Manager Classic Installer Path]"
+                    },
+                    "Features":[
+                        "Server",
+                        "WebViewers",
+                        "ALL"
+                    ]
+                },
+                "LocationReferencing":{
+                    "Installer": {
+                        "Path": "[Location Referencing Installer Path]"
+                    },
+                    "Features":[
+                        "PipeServer",
+                        "RHServer",
+                        "EventEditor",
+                        "RCE",
+                        "RoadwayReporter"
+                    ]
+                },
+                "MappingChartingSolution":{
+                    "Installer": {
+                        "Path": "[Mapping and Charting Solutions Installer Path]"
+                    },
+                    "Features":[
+                        "DefenseMapping",
+                        "Maritime",
+                        "ALL"
+                    ]
+                }
             }
         },
         "GeoEventServer": {
@@ -52,6 +100,18 @@
                 ]
             },
             "EnableGeoeventSDK": "[ Optional - True | False(Default) - Enables GeoEvent SDK during installation.]"
+        },
+        "WorkflowManagerServer": {
+            "LicenseFilePath": "[License File Path - Workflow Manager Server ]",
+            "Installer": {
+                "Path": "[Workflow Manager Server Installer Path]"
+            }
+        },
+        "DataStoreItems": {
+            "RasterStore": {
+                "FileShareLocalPath": "[File Share Local Path]",
+                "FileShareName": "[File Share Name]"
+            }
         },
         "Federation": {
             "PortalHostName": "[Portal Host Name (FQDN) with which this site needs to be federated]",

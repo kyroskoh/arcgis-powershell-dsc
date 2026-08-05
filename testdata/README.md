@@ -6,6 +6,8 @@ Point the validator at this folder; module rules report the issues (folder run e
 
 ```powershell
 .\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata\sampleconfigs\v5.1.0 -Version 5.1.0
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata\sampleconfigs\v5.1.1
 ```
 
 Directories expand recursively (`testdata\**\*.json`).
@@ -26,12 +28,17 @@ Directories expand recursively (`testdata\**\*.json`).
 
 ## SampleConfig-based fixtures
 
-Derived from `SampleConfigs/v5/v5.1.1/` with invalid data injected (placeholder style preserved).
+Derived from `SampleConfigs/v5/v5.1.0/` and `SampleConfigs/v5/v5.1.1/` with invalid data injected (placeholder style preserved). Schema `$schema` points at the matching `ConfigurationSchemas/vX.Y.Z.json`.
 
 | File | Based on | Typical findings |
 |------|----------|------------------|
-| `sampleconfigs/BaseDeployment-SingleMachine-invalid-desktop.json` | `Base Deployment/BaseDeployment-SingleMachine.json` | Desktop role; `DesktopVersion`; `WebAdaptor.AdminAccessEnabled` |
-| `sampleconfigs/BaseDeployment-DualMachine-invalid-allnodes.json` | `Base Deployment/BaseDeployment-DualMachine.json` | Duplicate `NodeName`; empty `Role`; `WebAdaptor.AdminAccessEnabled` |
-| `sampleconfigs/GISServer-GeoEvent-invalid-federation.json` | `Gis Servers/GISServer-GeoEvent.json` | GeoEvent + `Federation` (same shape as upstream sample) |
-| `sampleconfigs/GISServer-GeneralPurpose-MultiServerRoles-invalid-geoevent.json` | `Gis Servers/GISServer-GeneralPurpose-MultiServerRoles.json` | `Geoevent` in `AdditionalServerRoles` (same shape as upstream sample) |
-| `sampleconfigs/GISServer-GeneralPurpose-invalid-insights.json` | `Gis Servers/GISServer-GeneralPurpose.json` | `InsightsVersion`; `OldInsightsVersion` |
+| `sampleconfigs/v5.1.0/BaseDeployment-SingleMachine-invalid-desktop.json` | `v5.1.0/Base Deployment/BaseDeployment-SingleMachine.json` | Desktop role; `DesktopVersion`; `WebAdaptor.AdminAccessEnabled` |
+| `sampleconfigs/v5.1.0/BaseDeployment-DualMachine-invalid-allnodes.json` | `v5.1.0/Base Deployment/BaseDeployment-DualMachine.json` | Duplicate `NodeName`; empty `Role`; `WebAdaptor.AdminAccessEnabled` |
+| `sampleconfigs/v5.1.0/GISServer-GeoEvent-invalid-federation.json` | `v5.1.0/Gis Servers/GISServer-GeoEvent.json` | GeoEvent + `Federation` |
+| `sampleconfigs/v5.1.0/GISServer-GeneralPurpose-MultiServerRoles-invalid-geoevent.json` | `v5.1.0/Gis Servers/GISServer-GeneralPurpose-MultiServerRoles.json` | `Geoevent` in `AdditionalServerRoles` |
+| `sampleconfigs/v5.1.0/GISServer-GeneralPurpose-invalid-insights.json` | `v5.1.0/Gis Servers/GISServer-GeneralPurpose.json` | `InsightsVersion`; `OldInsightsVersion` |
+| `sampleconfigs/v5.1.1/BaseDeployment-SingleMachine-invalid-desktop.json` | `v5.1.1/Base Deployment/BaseDeployment-SingleMachine.json` | Desktop role; `DesktopVersion`; `WebAdaptor.AdminAccessEnabled` |
+| `sampleconfigs/v5.1.1/BaseDeployment-DualMachine-invalid-allnodes.json` | `v5.1.1/Base Deployment/BaseDeployment-DualMachine.json` | Duplicate `NodeName`; empty `Role`; `WebAdaptor.AdminAccessEnabled` |
+| `sampleconfigs/v5.1.1/GISServer-GeoEvent-invalid-federation.json` | `v5.1.1/Gis Servers/GISServer-GeoEvent.json` | GeoEvent + `Federation` |
+| `sampleconfigs/v5.1.1/GISServer-GeneralPurpose-MultiServerRoles-invalid-geoevent.json` | `v5.1.1/Gis Servers/GISServer-GeneralPurpose-MultiServerRoles.json` | `Geoevent` in `AdditionalServerRoles` |
+| `sampleconfigs/v5.1.1/GISServer-GeneralPurpose-invalid-insights.json` | `v5.1.1/Gis Servers/GISServer-GeneralPurpose.json` | `InsightsVersion`; `OldInsightsVersion` |

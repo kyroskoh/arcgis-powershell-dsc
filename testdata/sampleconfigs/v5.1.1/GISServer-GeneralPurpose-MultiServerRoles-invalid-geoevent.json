@@ -1,18 +1,24 @@
 {
-    "$schema": "../../ConfigurationSchemas/v5.1.1.json",
+    "$schema": "../../../ConfigurationSchemas/v5.1.1.json",
     "AllNodes": [
         {
             "NodeName": "[Machine Name]",
             "Role": [
-                "Server"
+                "Server",
+                "RasterDataStoreItem"
             ]
         }
     ],
     "ConfigData": {
         "Version": "[Version of ArcGIS Deployment]",
         "ServerRole": "GeneralPurposeServer",
-        "InsightsVersion": "2024.1",
-        "OldInsightsVersion": "2023.1",
+        "AdditionalServerRoles":[
+            "Geoevent",
+            "RasterAnalytics",
+            "WorkflowManagerServer",
+            "GeoAnalytics",
+            "ImageHosting"
+        ],
         "Credentials": {
             "ServiceAccount": {
                 "Password": "[ServiceAccount Password]",
@@ -39,7 +45,6 @@
                 "UserName": "[PrimarySiteAdmin Username]",
                 "Password": "[PrimarySiteAdmin Password]"
             },
-            "SharedKey": "[ArcGIS Server Shared Key when running in Silo'd mode]",
             "Extensions":{
                 "DataInteroperability":{
                     "Installer": {
@@ -85,6 +90,29 @@
                 }
             }
         },
+        "GeoEventServer": {
+            "LicenseFilePath": "[License File Path - GeoEvent Server ]",
+            "Installer": {
+                "Path": "[GeoEvent Server Installer Path]",
+                "PatchesDir": "[Path to Directory with Patches for GeoEvent Server]",
+                "PatchInstallOrder": [
+                    "Array of patch names to install in the needed order"
+                ]
+            },
+            "EnableGeoeventSDK": "[ Optional - True | False(Default) - Enables GeoEvent SDK during installation.]"
+        },
+        "WorkflowManagerServer": {
+            "LicenseFilePath": "[License File Path - Workflow Manager Server ]",
+            "Installer": {
+                "Path": "[Workflow Manager Server Installer Path]"
+            }
+        },
+        "DataStoreItems": {
+            "RasterStore": {
+                "FileShareLocalPath": "[File Share Local Path]",
+                "FileShareName": "[File Share Name]"
+            }
+        },
         "Federation": {
             "PortalHostName": "[Portal Host Name (FQDN) with which this site needs to be federated]",
             "PortalPort": "[Port on which Portal is listening ex. - 443]",
@@ -92,8 +120,7 @@
             "PortalAdministrator": {
                 "UserName": "admin",
                 "Password": "changeit"
-            },
-            "RestrictedPublishing": false
+            }
         }
     }
 }

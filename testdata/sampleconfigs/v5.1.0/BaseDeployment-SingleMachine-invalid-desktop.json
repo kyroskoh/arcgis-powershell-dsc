@@ -1,5 +1,5 @@
 {
-    "$schema": "../../ConfigurationSchemas/v5.1.1.json",
+    "$schema": "../../../ConfigurationSchemas/v5.1.0.json",
     "AllNodes": [
         {
             "NodeName": "[Machine Name]",

@@ -76,7 +76,8 @@ Editor `$schema` IntelliSense catches many shape mistakes while you edit. For a 
 
 # Directory or wildcard — expands recursively to *.json (module rules; invalid fixtures exit 1)
 .\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata
-.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata\sampleconfigs
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata\sampleconfigs\v5.1.0 -Version 5.1.0
+.\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 -Path .\testdata\sampleconfigs\v5.1.1
 
 # v5.1.0 pin
 .\ConfigurationSchemas\Test-ArcGISConfigurationJson.ps1 `
