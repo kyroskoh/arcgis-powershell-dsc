@@ -2,27 +2,15 @@
   "$schema": "../../../ConfigurationSchemas/v5.1.1.json",
   "AllNodes": [
     {
-      "NodeName": "[GeoEvent Server Machine]",
+      "NodeName": "[Machine Name]",
       "Role": [
         "Server"
-      ]
-    },
-    {
-      "NodeName": "[GeoEvent WebAdaptor Machine]",
-      "Role": [
-        "WebAdaptor"
-      ],
-      "WebAdaptorConfig": [
-        {
-          "Role": "Server",
-          "AdminAccessEnabled": true
-        }
       ]
     }
   ],
   "ConfigData": {
     "Version": "[Version of ArcGIS Deployment]",
-    "ServerRole": "GeoEvent",
+    "ServerRole": "GeneralPurposeServer",
     "Credentials": {
       "ServiceAccount": {
         "Password": "[ServiceAccount Password]",
@@ -40,10 +28,6 @@
         ],
         "InstallDir": "[Server Install Dir - Ex. C:\\ArcGIS\\Server]",
         "InstallDirPython": "[Python Install Dir - Ex. C:\\Python27] ",
-        "PatchesDir": "[Path to Directory with Patches for Server]",
-        "PatchInstallOrder": [
-          "Array of patch names to install in the needed order"
-        ],
         "EnableArcMapRuntime": "[ Optional - True (Default) | False - Enables ArcMapRuntime. Available starting 10.9.1]",
         "EnableDotnetSupport": "[ Optional - True | False (Default)  - Enables .Net Extension Support. Available starting 10.9.1]"
       },
@@ -52,21 +36,55 @@
       "PrimarySiteAdmin": {
         "UserName": "[PrimarySiteAdmin Username]",
         "Password": "[PrimarySiteAdmin Password]"
+      },
+      "SharedKey": "[ArcGIS Server Shared Key when running in Silo'd mode]",
+      "Extensions": {
+        "DataInteroperability": {
+          "Installer": {
+            "Path": "[Data Interoperability Installer Path]"
+          }
+        },
+        "DataReviewer": {
+          "Installer": {
+            "Path": "[Data Reviewer Installer Path]"
+          }
+        },
+        "WorkflowManagerClassic": {
+          "Installer": {
+            "Path": "[Workflow Manager Classic Installer Path]"
+          },
+          "Features": [
+            "Server",
+            "WebViewers",
+            "ALL"
+          ]
+        },
+        "LocationReferencing": {
+          "Installer": {
+            "Path": "[Location Referencing Installer Path]"
+          },
+          "Features": [
+            "PipeServer",
+            "RHServer",
+            "EventEditor",
+            "RCE",
+            "RoadwayReporter"
+          ]
+        },
+        "MappingChartingSolution": {
+          "Installer": {
+            "Path": "[Mapping and Charting Solutions Installer Path]"
+          },
+          "Features": [
+            "DefenseMapping",
+            "Maritime",
+            "ALL"
+          ]
+        }
       }
     },
-    "GeoEventServer": {
-      "LicenseFilePath": "[License File Path - GeoEvent Server ]",
-      "Installer": {
-        "Path": "[GeoEvent Server Installer Path]",
-        "PatchesDir": "[Path to Directory with Patches for GeoEvent Server]",
-        "PatchInstallOrder": [
-          "Array of patch names to install in the needed order"
-        ]
-      },
-      "EnableGeoeventSDK": "[ Optional - True | False(Default) - Enables GeoEvent SDK during installation.]"
-    },
     "Federation": {
-      "PortalHostName": "[Portal Host Name (FQDN) for federated GeoEvent site]",
+      "PortalHostName": "[Portal Host Name (FQDN) with which this site needs to be federated]",
       "PortalPort": "[Port on which Portal is listening ex. - 443]",
       "PortalContext": "[Context of the Portal ex. - portal]",
       "PortalAdministrator": {
@@ -75,11 +93,10 @@
       },
       "RestrictedPublishing": false
     },
-    "ServerContext": "geoevent",
-    "WebAdaptor": {
-      "AdminAccessEnabled": true,
+    "Insights": {
       "Installer": {
-        "Path": "[WebAdaptor Installer Path]"
+        "Path": "[Insights Installer Path]",
+        "IsSelfExtracting": true
       }
     }
   }
