@@ -18,7 +18,9 @@ Directories expand recursively (`testdata\**\*.json`).
 |------|------------------|
 | `invalid-deprecated-desktop.json` | `AllNodes` role `Desktop`; `ConfigData.DesktopVersion` |
 | `invalid-deprecated-insights.json` | `ConfigData.InsightsVersion`; `ConfigData.OldInsightsVersion` |
+| `invalid-deprecated-insights-block.json` | `ConfigData.Insights`; `Insights.Installer.Path` / `IsSelfExtracting` |
 | `invalid-webadaptor-adminaccess.json` | `ConfigData.WebAdaptor.AdminAccessEnabled` ignored note |
+| `invalid-webadaptorconfig-adminaccess.json` | `AllNodes.WebAdaptorConfig.AdminAccessEnabled` ignored note |
 | `invalid-geoevent-federation.json` | GeoEvent + `Federation` block |
 | `invalid-additional-geoevent.json` | `GeoEvent` in `AdditionalServerRoles` |
 | `invalid-allnodes.json` | Duplicate `NodeName`; empty `Role` |

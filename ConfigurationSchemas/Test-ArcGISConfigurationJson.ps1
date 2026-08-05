@@ -8,6 +8,10 @@
     integrity). Optionally validates against ConfigurationSchemas/vX.Y.Z.json using
     Test-Json -SchemaFile (PowerShell 7.4+ required for draft 2020-12).
 
+    Deprecated-key rules follow Esri wiki module 5.1.0 (Desktop/Insights removal) and
+    4.5.0 / runtime Web Adaptor AdminAccessEnabled behavior (Enterprise 11.5+).
+    See: https://github.com/Esri/arcgis-powershell-dsc/wiki/New-Variables-Introduced-in-each-PowerShell-DSC-Module-Version
+
     Intended as a standalone contribution under ConfigurationSchemas/ in
     Esri/arcgis-powershell-dsc. Does not import the ArcGIS DSC module.
 
@@ -56,20 +60,27 @@ $ErrorActionPreference = 'Stop'
 
 $script:ValidatorRoot = $PSScriptRoot
 
-# Embedded rules (module 5.1.0+). Kept in-script so Esri ConfigurationSchemas/
-# stays flat (schemas + this script only — no rules/ subdirectory).
+# Embedded rules from Esri wiki (5.1.0 Desktop/Insights; 4.5.0+ AdminAccessEnabled).
+# Kept in-script so ConfigurationSchemas/ stays flat (schemas + this script only).
 function Get-ArcGISConfigurationDeprecatedRules {
     $json = @'
 {
   "moduleVersion": "5.1.0",
+  "source": "https://github.com/Esri/arcgis-powershell-dsc/wiki/New-Variables-Introduced-in-each-PowerShell-DSC-Module-Version",
   "deprecatedAllNodesRoles": ["Desktop"],
   "deprecatedConfigDataKeys": [
     "DesktopVersion",
     "InsightsVersion",
-    "OldInsightsVersion"
+    "OldInsightsVersion",
+    "Insights"
+  ],
+  "deprecatedInsightsInstallerKeys": [
+    "Path",
+    "IsSelfExtracting"
   ],
   "notes": {
-    "WebAdaptor.AdminAccessEnabled": "ConfigData.WebAdaptor.AdminAccessEnabled is ignored from ArcGIS Enterprise 11.5; the module forces true."
+    "WebAdaptor.AdminAccessEnabled": "ConfigData.WebAdaptor.AdminAccessEnabled is ignored from ArcGIS Enterprise 11.5; the module forces true.",
+    "WebAdaptorConfig.AdminAccessEnabled": "AllNodes.WebAdaptorConfig.AdminAccessEnabled is ignored from ArcGIS Web Adaptor 11.5+; the module forces true."
   }
 }
 '@
@@ -89,11 +100,22 @@ function Test-ArcGISConfigurationDeprecatedKeys {
     if ($ModuleVersion -lt '5.1.0') { return @() }
 
     $rules = Get-ArcGISConfigurationDeprecatedRules
+    $waConfigNoteAdded = $false
 
     foreach ($node in @($Config.AllNodes)) {
         foreach ($badRole in @($rules.deprecatedAllNodesRoles)) {
             if ($node.Role -contains $badRole) {
                 $issues.Add("AllNodes role '$badRole' is deprecated in module $ModuleVersion (node $($node.NodeName)).")
+            }
+        }
+
+        foreach ($wa in @($node.WebAdaptorConfig)) {
+            if (-not $wa) { continue }
+            if ($wa.PSObject.Properties.Name -contains 'AdminAccessEnabled' -and -not $waConfigNoteAdded) {
+                $note = $rules.notes.'WebAdaptorConfig.AdminAccessEnabled'
+                if ($note) { $issues.Add([string]$note) }
+                else { $issues.Add('AllNodes.WebAdaptorConfig.AdminAccessEnabled is deprecated.') }
+                $waConfigNoteAdded = $true
             }
         }
     }
@@ -102,6 +124,14 @@ function Test-ArcGISConfigurationDeprecatedKeys {
         foreach ($key in @($rules.deprecatedConfigDataKeys)) {
             if ($Config.ConfigData.PSObject.Properties.Name -contains $key) {
                 $issues.Add("ConfigData.$key is deprecated in module $ModuleVersion.")
+            }
+        }
+
+        if ($Config.ConfigData.Insights -and $Config.ConfigData.Insights.Installer) {
+            foreach ($ikey in @($rules.deprecatedInsightsInstallerKeys)) {
+                if ($Config.ConfigData.Insights.Installer.PSObject.Properties.Name -contains $ikey) {
+                    $issues.Add("ConfigData.Insights.Installer.$ikey is deprecated in module $ModuleVersion.")
+                }
             }
         }
 

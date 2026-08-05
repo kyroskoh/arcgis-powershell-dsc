@@ -87,4 +87,10 @@ Editor `$schema` IntelliSense catches many shape mistakes while you edit. For a 
   -SchemaPath '.\ConfigurationSchemas\v5.1.0.json'
 ```
 
-Add `-Schema` on **PowerShell 7.4+** to also validate against `ConfigurationSchemas/v5.1.1.json` (or `v5.1.0.json`) via `Test-Json -SchemaFile` (draft 2020-12). Schema mode is strict (`additionalProperties: false`). Module semantic rules (deprecated Desktop/Insights keys, GeoEvent split-file rules, AllNodes integrity) are embedded in the script and always run on Windows PowerShell 5.1. `-Path` accepts files, directories (`*.json`), or wildcards.
+Add `-Schema` on **PowerShell 7.4+** to also validate against `ConfigurationSchemas/v5.1.1.json` (or `v5.1.0.json`) via `Test-Json -SchemaFile` (draft 2020-12). Schema mode is strict (`additionalProperties: false`). Module semantic rules are embedded in the script and always run on Windows PowerShell 5.1:
+
+- Deprecated keys from the [Esri variables wiki](https://github.com/Esri/arcgis-powershell-dsc/wiki/New-Variables-Introduced-in-each-PowerShell-DSC-Module-Version) (5.1.0: `Desktop` role, `DesktopVersion`, Insights keys/block; plus `WebAdaptor` / `WebAdaptorConfig` `AdminAccessEnabled` ignored from Enterprise / Web Adaptor 11.5+)
+- GeoEvent split-file rules
+- AllNodes integrity
+
+`-Path` accepts files, directories (`*.json` recursive), or wildcards.
